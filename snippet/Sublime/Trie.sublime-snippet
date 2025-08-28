@@ -1,0 +1,106 @@
+<snippet>
+  <content><![CDATA[
+struct Trie {
+    /* 
+    字典树
+    Trie tr;
+    tr.insert(s, times=1)     插入
+    tr.erase(s,  times=1)     删除
+    tr.count_word(s)          单词 s 的出现次数
+    tr.count_prefix(pre)      以 pre 为前缀的单词数量
+    */
+    static constexpr int A = 65;
+
+    struct Node {
+        int ch[A];
+        int pass;   // 经过该节点的单词数
+        int end;    // 在该节点结束的单词数
+        Node() { 
+            pass = end = 0;
+            std::fill(ch, ch + A, -1); 
+        }
+    };
+
+    std::vector<Node> t;
+
+    Trie() {
+        t.push_back(Node());
+    }
+    void clear() { 
+        t.clear();
+        t.push_back(Node());
+    }
+
+    static inline int id(char c) {
+        if ('0' <= c && c <= '9') {
+            return c - '0';
+        } else if ('a' <= c && c <= 'z') {
+            return c - 'a' + 10;
+        } else if ('A' <= c && c <= 'Z') {
+            return c - 'A' + 36;
+        } else {
+            return -1;
+        }
+    }
+
+    void insert(const std::string& s, int times = 1) {
+        int u = 0;
+        for (char c : s) {
+            int k = id(c);
+            if (t[u].ch[k] == -1) {
+                t[u].ch[k] = (int)t.size();
+                t.push_back(Node());
+            }
+            u = t[u].ch[k];
+            t[u].pass += times;
+        }
+        t[u].end += times;
+    }
+
+    int count_word(const std::string& s) const {
+        // 查找字符串集合中 s 的数量
+        int u = 0;
+        for (char c : s) {
+            int k = id(c), nx = t[u].ch[k];
+            if (nx == -1) return 0;
+            u = nx;
+        }
+        return t[u].end;
+    }
+
+    int count_prefix(const std::string& pre) const {
+        // 查找字符串集合中前缀 pre 的数量
+        int u = 0;
+        for (char c : pre) {
+            int k = id(c), nx = t[u].ch[k];
+            if (nx == -1) return 0;
+            u = nx;
+        }
+        return t[u].pass;
+    }
+
+    bool erase(const std::string& s, int times = 1) {
+        // 从字典树中删除 s
+        if (times <= 0) {
+            return 1;
+        }
+        if (count_word(s) < times) {
+            return 0;
+        }
+
+        int u = 0;
+        for (char c : s) {
+            u = t[u].ch[id(c)];
+            t[u].pass -= times;
+        }
+        t[u].end -= times;
+
+        return 1;
+    }
+};
+]]></content>
+  <tabTrigger>Trie</tabTrigger>
+  <description>Trie</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <!-- <scope >source.python</scope > -->
+</snippet>

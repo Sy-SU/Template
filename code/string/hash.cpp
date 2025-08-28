@@ -1,0 +1,119 @@
+#include <bits/stdc++.h>
+
+using i64 = long long;
+
+int find(int n) {
+    auto check = [&](int x) -> bool {
+        if (x <= 1) {
+            return 0;
+        }
+        for (int i = 2; i * i <= x; i++) {
+            if (x % i == 0) {
+                return 0;
+            }
+        }
+        return 1;
+    };
+
+    while (!check(n)) {
+        ++n;
+    }
+    return n;
+}
+
+static std::mt19937 rng((uint32_t)std::chrono::steady_clock::now().time_since_epoch().count());
+
+static inline int rnd(int lo, int hi) {
+    return (int)(rng() % (uint32_t)(hi - lo + 1)) + lo;
+}
+
+static inline int random_prime() {
+    return find(rnd(100000000, 1000000000));
+}
+
+static inline int random_base(int P) {
+    int lo = 256, hi = std::max(256, P - 2);
+    return rnd(lo, hi);
+}
+
+using Hash = std::array<uint32_t, 2>;
+
+struct StrHash {
+    /*
+    随机双模数字符串哈希
+    StrHash h(s);
+    auto hash = s.get(l, r);
+    常数较大
+    */
+    static int P1, P2, B;
+
+    int n;
+    std::vector<int> h1, h2, p1, p2;
+
+    StrHash() = default;
+
+    explicit StrHash(const std::string &s) {
+        n = s.size();
+        h1.assign(n + 1, 0), h2.assign(n + 1, 0), p1.assign(n + 1, 0), p2.assign(n + 1, 0);
+        if (P1 == 0 && P2 == 0 && B == 0) {
+            P1 = random_prime();
+            do {
+                P2 = random_prime();
+            } while (P1 == P2);
+            B = random_base(std::min(P1, P2));
+        }
+
+        p1[0] = 1, p2[0] = 1;
+
+        for (int i = 0; i < n; i++) {
+            int x = (unsigned char)s[i] + 1;
+            p1[i + 1] = (1ll * p1[i] * B) % P1;
+            p2[i + 1] = (1ll * p2[i] * B) % P2;
+            h1[i + 1] = (1ll * h1[i] * B + x) % P1;
+            h2[i + 1] = (1ll * h2[i] * B + x) % P2;
+        }
+    }
+
+    Hash get(int l, int r) {
+        ++r;
+
+        int a = (int)((h1[r] - (i64)h1[l] * p1[r - l]) % P1); 
+        if (a < 0) {
+            a += P1;
+        }
+
+        int b = (int)((h2[r] - (i64)h2[l] * p2[r - l]) % P2); 
+        if (b < 0) {
+            b += P2;
+        }
+
+        return {a, b};
+    }
+};
+
+int StrHash::P1 = 0;
+int StrHash::P2 = 0;
+int StrHash::B = 0;
+
+int main() {
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(nullptr);
+
+    int n;
+    std::cin >> n;
+
+    // std::vector<StrHash> h(n + 1);
+
+    std::set<Hash> st;
+    for (int i = 1; i <= n; i++) {
+        std::string s;
+        std::cin >> s;
+        StrHash h(s);
+
+        st.insert(h.get(0, (int)s.size() - 1));
+    }
+
+    std::cout << st.size() << "\n";
+
+    return 0;
+}

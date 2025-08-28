@@ -1,0 +1,60 @@
+<snippet>
+  <content><![CDATA[
+template <class T>
+struct Graph {
+    /*
+    Prim 求最小生成树
+    */
+    int n, m;
+    std::vector<std::vector<std::pair<int, T>>> adj;
+
+    Graph(int n, int m) {
+        this->n = n;
+        this->m = m;
+        adj.assign(n + 1, {});
+    }
+
+    void addEdge(int u, int v, T w) {
+        adj[u].emplace_back(v, w), adj[v].emplace_back(u, w);
+    }
+
+    void addArc(int u, int v, T w) {
+        adj[u].emplace_back(v, w);
+    }
+
+    std::pair<T, std::vector<int>> prim(int s, int &reached) {
+        constexpr T INF = std::numeric_limits<T>::max() / 4;
+        std::vector<int> pre(n + 1, -1); // 树上节点的前驱
+        std::vector<int> inMST(n + 1);
+        std::vector<T> cost(n + 1, INF);
+
+        using P = std::pair<T, int>;
+        std::priority_queue<P, std::vector<P>, std::greater<P>> pq;
+
+        T minCost = 0;
+        reached = 0;
+
+        pq.emplace(0, s);
+        while (!pq.empty()) {
+            auto [d, u] = pq.top();
+            pq.pop();
+            if (inMST[u]) {
+                continue;
+            }
+            inMST[u] = 1, cost[u] = d, minCost += d, reached++;
+            for (auto [v, w] : adj[u]) {
+                if (!inMST[v] && cost[v] > w) {
+                    cost[v] = w, pre[v] = u;
+                    pq.emplace(w, v);
+                }
+            }
+        }
+        return {minCost, pre};
+    }
+};
+]]></content>
+  <tabTrigger>Prim</tabTrigger>
+  <description>Prim</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <!-- <scope >source.python</scope > -->
+</snippet>
