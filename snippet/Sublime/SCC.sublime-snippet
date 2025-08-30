@@ -1,0 +1,83 @@
+<snippet>
+  <content><![CDATA[
+struct SCC {
+    /*
+    tarjan 求 SCC，有向图
+    scc_id[i] 表示 i 所在的 SCC 编号
+    例如：对 scc 缩点之后跑 dp
+    SCC scc(n);
+    scc.addArc(u, v); ...
+    scc.tarjan();
+
+    std::vector<std::vector<int>> dag(scc.scc_cnt + 1);
+    for (int u = 1; u <= n; u++) {
+        for (auto v : scc.adj[u]) {
+            if (scc.scc_id[u] != scc.scc_id[v]) {
+                dag[scc.scc_id[u]].push_back(scc.scc_id[v]);
+                // scc.scc_id[u] -> scc.scc_id[v]
+            }
+        }
+    }
+    */
+    int n, ind, scc_cnt;
+    std::vector<std::vector<int>> adj;
+    std::vector<int> dfn, low, in_stk, scc_id;
+    std::stack<int> stk;
+
+    SCC(int n) {
+        this->n = n;
+        ind = scc_cnt = 0;
+        adj.assign(n + 1, {});
+        dfn.assign(n + 1, 0);
+        low.assign(n + 1, 0);
+        in_stk.assign(n + 1, 0);
+        scc_id.assign(n + 1, 0);
+    }
+
+    void addArc(int u, int v) {
+        adj[u].push_back(v);
+    }
+
+    void dfs(int u) {
+        dfn[u] = low[u] = ++ind;
+        stk.push(u), in_stk[u] = 1;
+
+        for (auto v : adj[u]) {
+            if (!dfn[v]) {
+                dfs(v);
+                low[u] = std::min(low[u], low[v]);
+            } else if (in_stk[v]) {
+                low[u] = std::min(low[u], dfn[v]);
+            }
+        }
+
+        if (low[u] == dfn[u]) {
+            ++scc_cnt;
+            while (1) {
+                int x = stk.top();
+                stk.pop();
+                in_stk[x] = 0;
+                scc_id[x] = scc_cnt;
+                if (x == u) {
+                    break;
+                }
+            }
+        }
+    }
+
+    int tarjan() {
+        for (int i = 1; i <= n; i++) {
+            if (!dfn[i]) {
+                dfs(i);
+            }
+        }
+        return scc_cnt;
+    }
+};
+
+]]></content>
+  <tabTrigger>SCC</tabTrigger>
+  <description>SCC</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <!-- <scope >source.python</scope > -->
+</snippet>

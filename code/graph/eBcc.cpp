@@ -1,0 +1,103 @@
+#include <bits/stdc++.h>
+
+using i64 = long long;
+
+struct eBCC {
+    /*
+    tarjan 求 eBCC，无向图
+    bcc_id[i] 表示 i 所在的 BCC 编号
+    bcc[i] 表示第 i 个 BCC 的顶点集合
+    bridge 存储所有桥边
+    */
+    int n, m, ind, bcc_cnt, e_cnt;
+    std::vector<std::vector<std::pair<int, int>>> adj;
+    std::vector<int> dfn, low, is_bridge;
+    std::vector<int> bcc_id; // 每个顶点所在的 BCC 编号
+    std::vector<std::vector<int>> bcc; // 每个边双的顶点集合
+    std::vector<std::pair<int, int>> bridge;
+
+    eBCC(int n, int m) {
+        this->n = n;
+        this->m = m;
+        ind = bcc_cnt = e_cnt = 0;
+        adj.assign(n + 1, {});
+        dfn.assign(n + 1, 0);
+        low.assign(n + 1, 0);
+        bcc_id.assign(n + 1, -1);
+        is_bridge.assign(2 * m + 2, 0);
+    }
+
+    void addEdge(int u, int v) {
+        adj[u].push_back({v, e_cnt++}), adj[v].push_back({u, e_cnt++});
+    }
+
+    void dfs(int u, int fid) {
+        dfn[u] = low[u] = ++ind;
+        for (auto [v, eid] : adj[u]) {
+            if (!dfn[v]) {
+                dfs(v, eid);
+                low[u] = std::min(low[u], low[v]);
+                if (low[v] > dfn[u]) {
+                    is_bridge[eid] = is_bridge[eid ^ 1] = 1;
+                    bridge.push_back({u, v});
+                }
+            } else if (eid != (fid ^ 1)) {
+                low[u] = std::min(low[u], dfn[v]);
+            }
+        }
+    }
+
+    void comp(int u, int fid, int cid) {
+        bcc_id[u] = cid;
+        bcc[cid].push_back(u);
+        for (auto [v, eid] : adj[u]) {
+            if (!is_bridge[eid] && bcc_id[v] == -1 && eid != (fid ^ 1)) {
+                comp(v, eid, cid);
+            }
+        }
+    }
+
+    int tarjan() {
+        for (int i = 1; i <= n; i++) {
+            if (!dfn[i]) {
+                dfs(i, -1);
+            }
+        }
+        for (int i = 1; i <= n; i++) {
+            if (bcc_id[i] == -1) {
+                bcc.push_back({});
+                bcc_cnt++;
+                comp(i, -1, bcc_cnt - 1);
+            }
+        }
+        return bcc_cnt;
+    }
+};
+
+int main() {
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(nullptr);
+
+    int n, m;
+    std::cin >> n >> m;
+
+    eBCC graph(n, m);
+    for (int i = 1; i <= m; i++) {
+        int u, v;
+        std::cin >> u >> v;
+        if (u != v) {
+            graph.addEdge(u, v);
+        }
+    }
+
+    std::cout << graph.tarjan() << '\n';
+    for (auto bcc : graph.bcc) {
+        std::cout << bcc.size() << ' ';
+        for (auto u : bcc) {
+            std::cout << u << ' ';
+        }
+        std::cout << '\n';
+    }
+
+    return 0;
+}

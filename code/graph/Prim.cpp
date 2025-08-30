@@ -7,12 +7,11 @@ struct Graph {
     /*
     Prim 求最小生成树
     */
-    int n, m;
+    int n;
     std::vector<std::vector<std::pair<int, T>>> adj;
 
-    Graph(int n, int m) {
+    Graph(int n) {
         this->n = n;
-        this->m = m;
         adj.assign(n + 1, {});
     }
 
@@ -62,7 +61,7 @@ int main() {
     int n, m;
     std::cin >> n >> m;
 
-    Graph<i64> g(n, m);
+    Graph<i64> g(n);
     for (int i = 0; i < m; i++) {
         int u, v;
         i64 w;
