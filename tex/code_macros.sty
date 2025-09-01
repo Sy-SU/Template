@@ -1,0 +1,55 @@
+% !TeX root = template.tex
+% !TEX program = xelatex
+
+% tex/code_macros.sty
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{code_macros}[2025/09/01 Code booklet settings]
+
+% ===== Toggle backend =====
+\newif\ifuseminted
+\usemintedtrue % minted 开：\usemintedtrue；关：\usemintedfalse（则使用 listings）
+
+% ===== Common packages =====
+\usepackage[a4paper,margin=2.2cm]{geometry}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{enumitem}
+\usepackage{xcolor}
+
+% ===== Chinese support (XeLaTeX) =====
+\usepackage[AutoFakeBold,AutoFakeSlant]{xeCJK}
+
+% 英文字体
+\setmainfont{Latin Modern Roman}
+\setsansfont{Latin Modern Sans}
+\setmonofont{Consolas}
+
+% 中文字体
+\setCJKmainfont{SimSun}            % 正文字体：宋体
+\setCJKsansfont{Microsoft YaHei}   % 无衬线字体：微软雅黑
+\setCJKmonofont[AutoFakeSlant=0.2]{NSimSun} % 等宽字体：新宋体
+
+
+% ===== minted backend =====
+\ifuseminted
+  \usepackage[outputdir=tex]{minted}
+  \setminted{
+    fontsize=\small,
+    linenos,
+    breaklines,
+    tabsize=2
+  }
+\else
+% ===== listings backend =====
+  \usepackage{listings}
+  \lstset{
+    basicstyle=\ttfamily\small,
+    numbers=left,
+    numbersep=6pt,
+    breaklines=true,
+    tabsize=2,
+    frame=lines,
+    showstringspaces=false
+  }
+\fi

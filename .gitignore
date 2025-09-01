@@ -42,3 +42,32 @@
 
 .vscode/
 .cph/
+
+# minted cache
+_minted-*/
+tex/_minted-*/
+_minted-template/
+tex/_minted-template/
+
+# LaTeX aux
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex*
+*.xdv
+
+# latexmk 产物到 tex/ 下
+tex/*.aux
+tex/*.log
+tex/*.out
+tex/*.toc
+tex/*.fls
+tex/*.fdb_latexmk
+tex/*.synctex*
+tex/*.xdv
+tex/.codecache/

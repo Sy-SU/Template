@@ -1,0 +1,17 @@
+% 并查集
+
+\paragraph{用法示例:}
+\begin{minted}[fontsize=\small, tabsize=2]{cpp}
+struct DSU {
+    // ...
+};
+
+int main {
+    DSU dsu(n); // 初始化一个并查集
+    dsu.merge(x, y); // 合并第 x 个元素与第 y 个元素
+    std::cout << dsu.same(x, y) << '\n'; // 判断第 x 个元素与第 y 个元素是否在同一个集合中
+}
+\end{minted}
+
+\paragraph{注意:}
+初始化的并查集下标从 $1$ 开始。
