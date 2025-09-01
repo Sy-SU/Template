@@ -1,0 +1,14 @@
+VerbatimEnvironments
+  verbatim
+  Verbatim
+  minted
+  lstlisting
+End
+
+VerbatimCommands
+  verb
+  url
+  path
+  minted
+  inputminted
+End
