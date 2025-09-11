@@ -2,7 +2,7 @@
 
 using i64 = long long;
 
-template <class T>
+template<class T>
 struct Fenwick {
     /*
     树状数组维护单点加，区间和
