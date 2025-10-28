@@ -1,0 +1,30 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{c+ch}{\PYGZsh{}!/usr/bin/env bash}
+\PYG{n+nb}{set}\PYG{+w}{ }\PYGZhy{}euo\PYG{+w}{ }pipefail
+
+\PYG{n+nv}{t}\PYG{o}{=}\PYG{n+nv}{\PYGZdl{}1}
+
+g++\PYG{+w}{ }gen.cpp\PYG{+w}{ }\PYGZhy{}o\PYG{+w}{ }gen
+g++\PYG{+w}{ }A.cpp\PYG{+w}{ }\PYGZhy{}o\PYG{+w}{ }A
+g++\PYG{+w}{ }A\PYGZus{}\PYGZus{}Good.cpp\PYG{+w}{ }\PYGZhy{}o\PYG{+w}{ }A\PYGZus{}\PYGZus{}Good
+
+\PYG{k}{for}\PYG{+w}{ }\PYG{o}{(}\PYG{o}{(}\PYG{n+nv}{i}\PYG{o}{=}\PYG{l+m}{1}\PYG{p}{;}\PYG{+w}{ }i\PYGZlt{}\PYG{o}{=}t\PYG{p}{;}\PYG{+w}{ }i++\PYG{o}{)}\PYG{o}{)}\PYG{p}{;}\PYG{+w}{ }\PYG{k}{do}
+\PYG{+w}{    }./gen\PYG{+w}{ }\PYGZgt{}\PYG{+w}{ }\PYG{k}{in}.txt
+\PYG{+w}{    }./A\PYG{+w}{ }\PYGZlt{}\PYG{+w}{ }\PYG{k}{in}.txt\PYG{+w}{ }\PYGZgt{}\PYG{+w}{ }out.txt
+\PYG{+w}{    }./A\PYGZus{}\PYGZus{}Good\PYG{+w}{ }\PYGZlt{}\PYG{+w}{ }\PYG{k}{in}.txt\PYG{+w}{ }\PYGZgt{}\PYG{+w}{ }ans.txt
+
+\PYG{+w}{    }\PYG{k}{if}\PYG{+w}{ }diff\PYG{+w}{ }\PYGZhy{}q\PYG{+w}{ }out.txt\PYG{+w}{ }ans.txt\PYG{+w}{ }\PYGZgt{}\PYG{+w}{ }/dev/null\PYG{p}{;}\PYG{+w}{ }\PYG{k}{then}
+\PYG{+w}{        }\PYG{n+nb}{echo}\PYG{+w}{ }\PYG{l+s+s2}{\PYGZdq{}Accepted\PYGZdq{}}
+\PYG{+w}{    }\PYG{k}{else}
+\PYG{+w}{        }\PYG{n+nb}{echo}\PYG{+w}{ }\PYG{l+s+s2}{\PYGZdq{}Input\PYGZdq{}}
+\PYG{+w}{        }cat\PYG{+w}{ }\PYG{k}{in}.txt
+\PYG{+w}{        }\PYG{n+nb}{echo}\PYG{+w}{ }\PYG{l+s+s2}{\PYGZdq{} \PYGZdq{}}
+\PYG{+w}{        }\PYG{n+nb}{echo}\PYG{+w}{ }\PYG{l+s+s2}{\PYGZdq{}Output\PYGZdq{}}
+\PYG{+w}{        }cat\PYG{+w}{ }out.txt
+\PYG{+w}{        }\PYG{n+nb}{echo}\PYG{+w}{ }\PYG{l+s+s2}{\PYGZdq{} \PYGZdq{}}
+\PYG{+w}{        }\PYG{n+nb}{echo}\PYG{+w}{ }\PYG{l+s+s2}{\PYGZdq{}Answer\PYGZdq{}}
+\PYG{+w}{        }cat\PYG{+w}{ }ans.txt
+\PYG{+w}{        }\PYG{n+nb}{exit}\PYG{+w}{ }\PYG{l+m}{1}
+\PYG{+w}{    }\PYG{k}{fi}
+\PYG{k}{done}
+\end{MintedVerbatim}

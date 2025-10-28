@@ -1,0 +1,84 @@
+#include <bits/stdc++.h>
+
+using i64 = long long;
+
+struct Sieve {
+    /*
+    Sieve sieve(n); // 0-indexed primes <= n
+
+    // 对 n 分解质因数
+    auto f = sieve.factorize(n);
+    std::cout << n << " = ";
+    for (int i = 0; i < (int)f.size(); i++) {
+        std::cout << f[i].first << "^" << f[i].second;
+        if (i + 1 < (int)f.size()) std::cout << " * ";
+    }
+    std::cout << '\n';
+    */
+    int n;
+    std::vector<int> primes, minp;
+
+    Sieve(int n_max = 0) {
+        n = n_max;
+
+        int pn = n / std::log(n);
+        primes.reserve(pn);
+        minp.assign(n + 1, 0);
+
+        for (int i = 2; i <= n; i++) {
+            if (!minp[i]) {
+                minp[i] = i;
+                primes.push_back(i);
+            }
+            for (int p : primes) {
+                i64 v = i * 1ll * p;
+                if (v > n) {
+                    break;
+                }
+                minp[v] = p;
+                if (p == minp[i]) {
+                    break;
+                }
+            }
+        }
+    }
+
+    bool is_prime(int x) const {
+        if (x < 2 || x > n) {
+            return 0;
+        }
+        return minp[x] == x;
+    }
+
+    std::vector<std::pair<int,int>> factorize(int x) const {
+        std::vector<std::pair<int,int>> res;
+        while (x > 1) {
+            int p = minp[x];
+            int c = 0;
+            while (x % p == 0) {
+                x /= p;
+                c++;
+            }
+            res.push_back({p, c});
+        }
+        return res;
+    }
+};
+
+int main() {
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(nullptr);
+
+    int n, q;
+    std::cin >> n >> q;
+
+    Sieve sieve(n);
+    while (q--) {
+        int k;
+        std::cin >> k;
+
+        std::cout << sieve.primes[k - 1] << '\n';
+    }
+
+    return 0;
+}

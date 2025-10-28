@@ -1,0 +1,262 @@
+<snippet>
+  <content><![CDATA[
+template<typename T, T MOD>
+class Matrix {
+    /*
+    using Mat = Matrix<i64, 1000000007>;
+    
+    int n;
+    i64 k;
+    std::cin >> n >> k;
+
+    Mat A(n, n);
+    for (int i = 1; i <= A.rows(); i++) {
+        for (int j = 1; j <= A.cols(); j++) {
+            std::cin >> A.at(i, j);
+        }
+    }
+
+    auto res = A.pow(k);
+    res.print();
+    */
+private:
+    int n, m;                 // 行列数
+    std::vector<T> data;           // 一维存储
+
+    // 工具：把值规范到模意义下
+    static T norm(T x) {
+        // 假设 T 是带符号整数类型或无符号整型可以做 % 运算
+        x %= MOD;
+        if (x < 0) x += MOD;
+        return x;
+    }
+
+public:
+    // 构造函数：默认 0 填充
+    Matrix(int n, int m) : n(n), m(m), data(n * m, 0) {}
+
+    // 访问元素（1-index，返回引用）
+    T& at(int i, int j) {
+        assert(1 <= i && i <= n && 1 <= j && j <= m);
+        return data[(i - 1) * m + (j - 1)];
+    }
+
+    // 常量访问
+    const T& at(int i, int j) const {
+        assert(1 <= i && i <= n && 1 <= j && j <= m);
+        return data[(i - 1) * m + (j - 1)];
+    }
+
+    // 模数
+    static constexpr T mod() { return MOD; }
+
+    // 行列数访问器
+    int rows() const { return n; }
+    int cols() const { return m; }
+
+    // 矩阵加法（逐元素相加，模 MOD）
+    Matrix operator+(const Matrix& oth) const {
+        assert(n == oth.n && m == oth.m);
+        Matrix res(n, m);
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= m; ++j) {
+                T v = at(i, j) + oth.at(i, j);
+                res.at(i, j) = norm(v);
+            }
+        }
+        return res;
+    }
+
+    // 自加（A += B）
+    Matrix& operator+=(const Matrix& oth) {
+        assert(n == oth.n && m == oth.m);
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= m; ++j) {
+                T v = at(i, j) + oth.at(i, j);
+                at(i, j) = norm(v);
+            }
+        }
+        return *this;
+    }
+
+    // 矩阵减法（逐元素相减，模 MOD）
+    Matrix operator-(const Matrix& oth) const {
+        assert(n == oth.n && m == oth.m);
+        Matrix res(n, m);
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= m; ++j) {
+                T v = at(i, j) - oth.at(i, j);
+                res.at(i, j) = norm(v);
+            }
+        }
+        return res;
+    }
+
+    // 自减（A -= B）
+    Matrix& operator-=(const Matrix& oth) {
+        assert(n == oth.n && m == oth.m);
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= m; ++j) {
+                T v = at(i, j) - oth.at(i, j);
+                at(i, j) = norm(v);
+            }
+        }
+        return *this;
+    }
+
+    // 标量乘法（k * A 或 A * k，逐元素乘以 k，然后模 MOD）
+    Matrix operator*(T k) const {
+        Matrix res(n, m);
+        k = norm(k); // 先把标量也规约一下
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= m; ++j) {
+                // 这里用 __int128 保护溢出可以考虑，但为了通用 T，不先上
+                T v = (at(i, j) % MOD) * k;
+                res.at(i, j) = norm(v);
+            }
+        }
+        return res;
+    }
+
+    // 自乘（A *= k）
+    Matrix& operator*=(T k) {
+        k = norm(k);
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= m; ++j) {
+                T v = (at(i, j) % MOD) * k;
+                at(i, j) = norm(v);
+            }
+        }
+        return *this;
+    }
+
+    // k * A
+    friend Matrix operator*(T k, const Matrix& mat) {
+        return mat * k;
+    }
+
+    // 点乘 / Hadamard 逐元素相乘（同型矩阵）
+    // res[i,j] = A[i,j] * B[i,j] (mod MOD)
+    Matrix hadamard(const Matrix& oth) const {
+        assert(n == oth.n && m == oth.m);
+        Matrix res(n, m);
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= m; ++j) {
+                T v = (at(i, j) % MOD) * (oth.at(i, j) % MOD);
+                res.at(i, j) = norm(v);
+            }
+        }
+        return res;
+    }
+
+    // 转置矩阵（返回新对象）
+    Matrix transpose() const {
+        Matrix res(m, n); // 维度反过来
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= m; ++j) {
+                res.at(j, i) = at(i, j);
+            }
+        }
+        return res;
+    }
+
+    // 矩阵乘法
+    Matrix operator*(const Matrix& oth) const {
+        assert(m == oth.n); // 左的列数 == 右的行数
+        Matrix res(n, oth.m);
+
+        for (int i = 1; i <= n; ++i) {
+            for (int k = 1; k <= m; ++k) {
+                // 先取出 a_ik
+                T a_ik = at(i, k) % MOD;
+                if (a_ik == 0) continue;
+                for (int j = 1; j <= oth.m; ++j) {
+                    __int128 mul = (__int128)a_ik * (__int128)(oth.at(k, j) % MOD);
+                    T add_val = (T)(mul % MOD);
+
+                    T cur = res.at(i, j) + add_val;
+                    if (cur >= MOD) cur -= MOD;
+                    res.at(i, j) = cur;
+                }
+            }
+        }
+
+        return res;
+    }
+
+    Matrix& operator*=(const Matrix& oth) {
+        assert(m == oth.n);
+
+        int new_n = n;
+        int new_m = oth.m;
+        int mid   = m;
+
+        std::vector<T> newData((size_t)new_n * new_m, (T)0);
+
+        for (int i = 1; i <= new_n; ++i) {
+            for (int k = 1; k <= mid; ++k) {
+                T a_ik = at(i, k) % MOD;
+                if (a_ik == 0) continue;
+                for (int j = 1; j <= new_m; ++j) {
+                    __int128 mul = (__int128)a_ik * (__int128)(oth.at(k, j) % MOD);
+                    T add_val = (T)(mul % MOD);
+
+                    T &cell = newData[(size_t)(i - 1) * new_m + (j - 1)];
+                    T cur = cell + add_val;
+                    if (cur >= MOD) cur -= MOD;
+                    cell = cur;
+                }
+            }
+        }
+
+        n = new_n;
+        m = new_m;
+        data.swap(newData);
+
+        return *this;
+    }
+
+    static Matrix identity(int n) {
+        Matrix I(n, n);
+        for (int i = 1; i <= n; ++i) {
+            I.at(i, i) = 1 % MOD;
+        }
+        return I;
+    }
+
+    Matrix pow(long long e) const {
+        assert(n == m);
+        assert(e >= 0);
+
+        Matrix base = *this;
+        Matrix res  = identity(n);
+
+        long long k = e;
+        while (k > 0) {
+            if (k & 1LL) {
+                res *= base;
+            }
+            k >>= 1LL;
+            if (k > 0) {
+                base *= base;
+            }
+        }
+        return res;
+    }
+
+    void print() const {
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= m; ++j) {
+                std::cout << at(i, j) << " \n"[j == m];
+            }
+        }
+    }
+};
+
+using Mat = Matrix<i64, 1000000007>;
+]]></content>
+  <tabTrigger>Matrix</tabTrigger>
+  <description>Matrix</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <!-- <scope >source.python</scope > -->
+</snippet>
